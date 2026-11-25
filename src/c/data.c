@@ -8,6 +8,9 @@
 #define K_ACTIVE_LEN  4
 #define K_VIBE        5
 #define K_NOTE        6  // the running workout's note, a string of its own
+// 7, 8: the text size and the colours, kept by ui.c
+#define K_FOCUS       9
+#define K_HEART       10
 #define K_PLAN_BASE   100
 #define K_LOG_BASE    200
 #define K_ACTIVE_BASE 300
@@ -18,11 +21,13 @@
 // Older versions are still read: what was stored before an update keeps working.
 #define PLAN_VERSION  3   // 2 added supersets, 3 per-side exercises
 #define LOG_VERSION   2   // 2 added the side of each set, per-side entries and the note
-#define ACTIVE_VERSION 3  // 2 added the entry flags, 3 the superset
+#define ACTIVE_VERSION 4  // 2 added the entry flags, 3 the superset, 4 the hold start
 
 Plan g_plan;
 Session g_sess;
 uint8_t g_vibe = VIBE_NORMAL;
+bool g_focus_remind = true;
+uint8_t g_heart_period = HEART_DEFAULT;
 
 static uint8_t s_log[LOG_MAX];
 static uint16_t s_log_len;
@@ -245,6 +250,7 @@ static int sess_serialize(uint8_t *buf, size_t cap) {
   wr_u32(&w, g_sess.start);
   wr_u32(&w, g_sess.rest_end);
   wr_u16(&w, g_sess.rest_total);
+  wr_u32(&w, g_sess.hold_start);
   wr_u8(&w, g_sess.routine);
   wr_u8(&w, g_sess.cur);
   wr_u8(&w, g_sess.n);
@@ -276,6 +282,7 @@ static void sess_load(void) {
   g_sess.start = rd_u32(&r);
   g_sess.rest_end = rd_u32(&r);
   g_sess.rest_total = rd_u16(&r);
+  g_sess.hold_start = ver >= 4 ? rd_u32(&r) : 0;
   g_sess.routine = rd_u8(&r);
   g_sess.cur = rd_u8(&r);
   g_sess.n = rd_u8(&r);
@@ -394,6 +401,15 @@ int sess_cur_set(void) {
     if (!(e->s[k].flags & (SET_DONE | SET_SKIP))) return k;
   }
   return -1;
+}
+
+uint32_t sess_alarm_at(void) {
+  if (!g_sess.active) return 0;
+  if (g_sess.rest_end) return g_sess.rest_end;
+  int si = sess_cur_set();
+  if (!g_sess.hold_start || si < 0) return 0;
+  uint16_t target = g_sess.e[g_sess.cur].s[si].amt;
+  return target ? g_sess.hold_start + target : 0;  // a hold without a target just counts up
 }
 
 int sess_open_in(uint8_t entry) {
@@ -584,6 +600,19 @@ void vibe_set(uint8_t v) {
   persist_write_int(K_VIBE, v);
 }
 
+void focus_remind_set(bool on) {
+  if (on == g_focus_remind && persist_exists(K_FOCUS)) return;
+  g_focus_remind = on;
+  persist_write_bool(K_FOCUS, on);
+}
+
+void heart_set(uint8_t secs) {
+  if (secs > HEART_MAX) secs = HEART_MAX;
+  if (secs == g_heart_period && persist_exists(K_HEART)) return;
+  g_heart_period = secs;
+  persist_write_int(K_HEART, secs);
+}
+
 void vibe_timer_done(void) {
   static const uint32_t normal[] = { 300, 150, 300 };
   static const uint32_t strong[] = { 600, 200, 600, 200, 600 };
@@ -607,6 +636,8 @@ void data_init(void) {
     persist_write_int(K_SCHEMA, SCHEMA);
   }
   if (persist_exists(K_VIBE)) g_vibe = persist_read_int(K_VIBE);
+  if (persist_exists(K_FOCUS)) g_focus_remind = persist_read_bool(K_FOCUS);
+  if (persist_exists(K_HEART)) heart_set(persist_read_int(K_HEART));
   memset(&g_plan, 0, sizeof(g_plan));
   plan_load();
   s_log_len = blob_read(K_LOG_LEN, K_LOG_BASE, s_log, sizeof(s_log));

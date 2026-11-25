@@ -107,6 +107,7 @@ typedef struct {
   uint32_t start;
   uint32_t rest_end;   // unix seconds, 0 = no rest running
   uint16_t rest_total; // seconds the running rest started with
+  uint32_t hold_start; // unix seconds a timed hold began, 0 = none running
   uint8_t routine;
   uint8_t cur;
   uint8_t n;
@@ -132,6 +133,7 @@ void sess_discard(void);
 bool sess_finish(void);  // false when there is no room to keep it
 int sess_cur_set(void);  // first open set of the current entry, -1 when none
 bool sess_advance(void); // move to the next entry with open sets, false when all are done
+uint32_t sess_alarm_at(void); // when the running rest or timed hold runs out, 0 = nothing due
 int sess_count(uint8_t flag);
 int sess_total(void);
 int sess_open_in(uint8_t entry);
@@ -150,6 +152,17 @@ extern uint8_t g_vibe;
 void vibe_set(uint8_t v);
 void vibe_timer_done(void);  // the alarm itself, as set
 void vibe_warning(void);     // the nudge 10 s before a rest ends (none when off)
+
+// Focus: a reminder to turn on Do Not Disturb when a workout starts (Settings on the phone). Apps
+// can't switch Do Not Disturb themselves, so the watch only reminds.
+extern bool g_focus_remind;
+void focus_remind_set(bool on);
+
+// Heart rate in the workout's top bar (Settings on the phone): the seconds between readings asked
+// of the sensor during a workout, 0 for off, which leaves the sensor alone.
+enum { HEART_DEFAULT = 5, HEART_MAX = 60 };
+extern uint8_t g_heart_period;
+void heart_set(uint8_t secs);
 
 void fmt_weight(char *buf, size_t size, uint16_t w20);
 void fmt_duration(char *buf, size_t size, int secs);

@@ -40,6 +40,38 @@ var DE = {
   'Off': 'Aus',
   'For the rest timer and timed holds. Off also drops the nudge 10 seconds before a rest ends.':
     'Für den Pausentimer und Halteübungen. Aus schaltet auch den Hinweis 10 Sekunden vor Ende der Pause ab.',
+  'Focus at workout start': 'Fokus beim Trainingsstart',
+  'Remind me to turn on Do Not Disturb': 'An „Nicht stören“ erinnern',
+  "Pebble apps can't silence notifications themselves: the watch shows a reminder when a workout starts, so you can switch on Do Not Disturb.":
+    'Pebble-Apps können Mitteilungen nicht selbst stummschalten: Die Uhr erinnert beim Trainingsstart daran, „Nicht stören“ einzuschalten.',
+  'Heart rate during workouts': 'Herzfrequenz im Training',
+  'Every second': 'Jede Sekunde',
+  'Every 5 seconds': 'Alle 5 Sekunden',
+  'Every 10 seconds': 'Alle 10 Sekunden',
+  'Every 30 seconds': 'Alle 30 Sekunden',
+  'Shown in the top right of the workout. How often the sensor measures during a workout: more often uses more battery. Off leaves the sensor alone.':
+    'Oben rechts im Training. Wie oft der Sensor während des Trainings misst: öfter braucht mehr Akku. Aus lässt den Sensor in Ruhe.',
+  'Text size on the watch': 'Textgröße auf der Uhr',
+  'Like the watch': 'Wie auf der Uhr',
+  'Large': 'Groß',
+  'Extra large': 'Sehr groß',
+  "Like the watch follows the text size in the watch's settings: Extra large there makes the app large too.":
+    'Wie auf der Uhr folgt der Textgröße in den Einstellungen der Uhr: Dort sehr groß macht auch die App groß.',
+  'Theme on the watch': 'Design auf der Uhr',
+  'Dark': 'Dunkel',
+  'Light': 'Hell',
+  'Accent color': 'Akzentfarbe',
+  'openGym green': 'openGym-Grün',
+  'Classic green': 'Klassisches Grün',
+  'Blue': 'Blau',
+  'Orange': 'Orange',
+  'Purple': 'Lila',
+  'Pink': 'Pink',
+  'Red': 'Rot',
+  'Teal': 'Türkis',
+  'Yellow': 'Gelb',
+  "Like the openGym profile takes the theme and color from openGym's settings with each sync, your own color too, as close as the watch can show it. System there is dark on the watch.":
+    'Wie im openGym-Profil übernimmt Design und Farbe bei jedem Sync aus den openGym-Einstellungen, auch eine eigene Farbe, so nah, wie die Uhr sie zeigen kann. System ist auf der Uhr dunkel.',
   'Save': 'Speichern'
 };
 

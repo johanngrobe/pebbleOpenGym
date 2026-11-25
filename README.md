@@ -72,6 +72,22 @@ If the server is unreachable it stays on the phone and goes with the next sync.
 - A workout note can be dictated from the workout menu (needs the phone for the transcription).
   Notes on single exercises, RIR/RPE, drop sets and bands are not on the watch.
 - The vibration when a rest or hold ends is set on the settings page (normal, strong, short, off).
+- Focus: when a workout starts the watch reminds you to turn on Do Not Disturb, so notifications
+  don't interrupt the workout. Pebble apps can't switch Do Not Disturb on themselves. The reminder
+  closes with any button or after 20 s, and can be turned off on the settings page.
+- Heart rate: shown in the top right of the workout (just the number on large text). While the
+  workout is on screen the watch asks the sensor for a reading as often as set on the settings
+  page (every 1, 5 (default), 10 or 30 s) and lets it go back to its normal rate afterwards; a
+  reading older than three intervals, and at least 30 s, is hidden. *Off* leaves the sensor alone.
+- Text size is set on the settings page too: *Like the watch* (default) follows the watch's own
+  text size setting and switches to the biggest layout when the watch is set to Extra large;
+  *Normal*, *Large* and *Extra large* set it for this app only. The large sizes use bigger fonts
+  everywhere and drop a few hint lines to make room.
+- Colours follow openGym's: a dark or light theme and an accent colour. By default the watch
+  takes both from the openGym profile with each sync, including your own colour, matched to the
+  nearest of the watch's 64 colours that still reads on the background; openGym's *System* theme
+  is dark on the watch. The settings page can set either for the watch alone (*Dark*, *Light*,
+  and openGym's nine accent presets).
 - Heart rate is shown during the workout but not saved to openGym.
 - The rest alarm only works while the app is open.
 
@@ -108,6 +124,7 @@ src/c/data.c      routines, running workout and upload queue in persistent stora
 src/c/comm.c      sync with the phone (upload queue first, then routines)
 src/c/home.c      today, routines, routine preview, sync status
 src/c/workout.c   set / hold / rest / done screens, workout menu, summary
+src/c/ui.c        text size and colours
 src/pkjs/         phone side: openGym API, data formats, settings page, exercise names
 src/pebbleopengym development tools (names generator, mock server)
 ```

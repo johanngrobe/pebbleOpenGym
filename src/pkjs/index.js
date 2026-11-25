@@ -7,9 +7,10 @@ var codec = require('./codec');
 var config = require('./config');
 var names = require('./exercise_names');
 var i18n = require('./i18n');
+var look = require('./look');
 
 var CMD = {
-  HELLO: 1, PLAN_BEGIN: 2, PLAN_CHUNK: 3, PLAN_END: 4, LOG_ACK: 5, STATUS: 6,
+  HELLO: 1, PLAN_BEGIN: 2, PLAN_CHUNK: 3, PLAN_END: 4, LOG_ACK: 5, STATUS: 6, LOOK: 7,
   SYNC_REQ: 10, LOG_DATA: 11
 };
 var STATUS = { WORKING: 0, DONE: 1, ERROR: 2 };
@@ -130,6 +131,7 @@ function sendRoutines(cfg, budget, uploaded) {
   status(STATUS.WORKING, tr('Loading routines...'));
   api.getData(cfg, function (err, doc) {
     if (err) return status(STATUS.ERROR, errText(err));
+    profileLook(doc.state);
     var plan = codec.encodePlan(doc.state, {
       names: names,
       lang: cfg.lang || doc.state.lang,
@@ -197,9 +199,43 @@ function onLog(seq, data) {
 
 // Hello starts a sync on the watch, and carries the settings the watch keeps itself.
 var VIBE = { off: 0, short: 1, normal: 2, strong: 3 };
+var SIZE = { auto: 0, normal: 1, large: 2, xl: 3 };
+var FOCUS = { off: 0, remind: 1 };
+// Seconds between heart rate readings during a workout; 'on' is an older setting.
+var HEART = { off: 0, '1': 1, '5': 5, '10': 10, '30': 30 };
+function heartSetting(v) {
+  return HEART[v] != null && v !== 'on' ? String(v) : '5';
+}
+
+// The colours as the watch should draw them: the settings page's choice, or the openGym profile's
+// as last seen. { Theme, Accent, OnAccent }
+function colors() {
+  var s = settings();
+  return look.encode(look.resolve({ theme: s.theme, accent: s.accent }, load('profileLook', null)));
+}
+
 function hello() {
-  var v = VIBE[settings().vibe];
-  send({ Cmd: CMD.HELLO, Vibe: v == null ? VIBE.normal : v });
+  var s = settings();
+  var v = VIBE[s.vibe];
+  var c = colors();
+  save('sentLook', c);
+  send({
+    Cmd: CMD.HELLO, Vibe: v == null ? VIBE.normal : v, Size: SIZE[s.size] || SIZE.auto,
+    Focus: s.focus === 'off' ? FOCUS.off : FOCUS.remind,
+    Heart: HEART[heartSetting(s.heart)],
+    Theme: c.Theme, Accent: c.Accent, OnAccent: c.OnAccent
+  });
+}
+
+// The profile's theme and accent, from a sync. Changed in openGym: the watch gets them right away.
+function profileLook(state) {
+  var p = look.fromProfile(state);
+  if (!p) return;
+  save('profileLook', p);
+  var c = colors();
+  if (JSON.stringify(c) === JSON.stringify(load('sentLook', null))) return;
+  save('sentLook', c);
+  send({ Cmd: CMD.LOOK, Theme: c.Theme, Accent: c.Accent, OnAccent: c.OnAccent });
 }
 
 Pebble.addEventListener('ready', hello);
@@ -231,7 +267,12 @@ Pebble.addEventListener('webviewclosed', function (e) {
     token: String(value.token || '').trim(),
     lang: value.lang || '',
     step: value.step || '',
-    vibe: VIBE[value.vibe] != null ? value.vibe : 'normal'
+    vibe: VIBE[value.vibe] != null ? value.vibe : 'normal',
+    focus: FOCUS[value.focus] != null ? value.focus : 'remind',
+    heart: heartSetting(value.heart),
+    size: SIZE[value.size] != null ? value.size : 'auto',
+    theme: look.THEME[value.theme] != null ? value.theme : '',
+    accent: look.PRESETS[value.accent] ? value.accent : ''
   });
   // Tell the watch, which syncs on hello.
   hello();

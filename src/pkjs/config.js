@@ -2,6 +2,7 @@
 // be hosted anywhere: it talks to no server, it only hands the values back to the watch app.
 
 var i18n = require('./i18n');
+var look = require('./look');
 
 function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -55,12 +56,58 @@ function page(settings, lang) {
       }).join('') +
     '</select>' +
     '<p class="small">' + t('For the rest timer and timed holds. Off also drops the nudge 10 seconds before a rest ends.') + '</p>' +
+    '<label for="focus">' + t('Focus at workout start') + '</label>' +
+    '<select id="focus">' +
+    [['remind', 'Remind me to turn on Do Not Disturb'], ['off', 'Off']]
+      .map(function (o) {
+        var sel = (s.focus || 'remind') === o[0] ? ' selected' : '';
+        return '<option value="' + o[0] + '"' + sel + '>' + t(o[1]) + '</option>';
+      }).join('') +
+    '</select>' +
+    '<p class="small">' + t('Pebble apps can\'t silence notifications themselves: the watch shows a reminder when a workout starts, so you can switch on Do Not Disturb.') + '</p>' +
+    '<label for="heart">' + t('Heart rate during workouts') + '</label>' +
+    '<select id="heart">' +
+    [['1', 'Every second'], ['5', 'Every 5 seconds'], ['10', 'Every 10 seconds'], ['30', 'Every 30 seconds'], ['off', 'Off']]
+      .map(function (o) {
+        var cur = s.heart && s.heart !== 'on' ? s.heart : '5';
+        var sel = cur === o[0] ? ' selected' : '';
+        return '<option value="' + o[0] + '"' + sel + '>' + t(o[1]) + '</option>';
+      }).join('') +
+    '</select>' +
+    '<p class="small">' + t('Shown in the top right of the workout. How often the sensor measures during a workout: more often uses more battery. Off leaves the sensor alone.') + '</p>' +
+    '<label for="size">' + t('Text size on the watch') + '</label>' +
+    '<select id="size">' +
+    [['auto', 'Like the watch'], ['normal', 'Normal'], ['large', 'Large'], ['xl', 'Extra large']]
+      .map(function (o) {
+        var sel = (s.size || 'auto') === o[0] ? ' selected' : '';
+        return '<option value="' + o[0] + '"' + sel + '>' + t(o[1]) + '</option>';
+      }).join('') +
+    '</select>' +
+    '<p class="small">' + t('Like the watch follows the text size in the watch\'s settings: Extra large there makes the app large too.') + '</p>' +
+    '<label for="theme">' + t('Theme on the watch') + '</label>' +
+    '<select id="theme">' +
+    [['', 'Like the openGym profile'], ['dark', 'Dark'], ['light', 'Light']]
+      .map(function (o) {
+        var sel = (s.theme || '') === o[0] ? ' selected' : '';
+        return '<option value="' + o[0] + '"' + sel + '>' + t(o[1]) + '</option>';
+      }).join('') +
+    '</select>' +
+    '<label for="accent">' + t('Accent color') + '</label>' +
+    '<select id="accent">' +
+    '<option value="">' + t('Like the openGym profile') + '</option>' +
+    look.ORDER.map(function (k) {
+      var sel = s.accent === k ? ' selected' : '';
+      return '<option value="' + k + '"' + sel + '>' + t(look.NAMES[k]) + '</option>';
+    }).join('') +
+    '</select>' +
+    '<p class="small">' + t('Like the openGym profile takes the theme and color from openGym\'s settings with each sync, ' +
+    'your own color too, as close as the watch can show it. System there is dark on the watch.') + '</p>' +
     '<button id="save">' + t('Save') + '</button>' +
     '<script>' +
     'function q(n){var m=(location.search+"&"+location.hash).match(new RegExp("[?&#]"+n+"=([^&]*)"));return m?decodeURIComponent(m[1]):null}' +
     'document.getElementById("save").onclick=function(){' +
     'var r={url:document.getElementById("url").value.trim(),token:document.getElementById("token").value.trim(),' +
-    'lang:document.getElementById("lang").value,step:document.getElementById("step").value,vibe:document.getElementById("vibe").value};' +
+    'lang:document.getElementById("lang").value,step:document.getElementById("step").value,vibe:document.getElementById("vibe").value,focus:document.getElementById("focus").value,heart:document.getElementById("heart").value,size:document.getElementById("size").value,theme:document.getElementById("theme").value,accent:document.getElementById("accent").value};' +
     'location.href=(q("return_to")||"pebblejs://close#")+encodeURIComponent(JSON.stringify(r));};' +
     '</script></body></html>';
   return 'data:text/html;charset=utf-8,' + encodeURIComponent(html);

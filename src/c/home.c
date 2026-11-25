@@ -2,6 +2,7 @@
 #include "i18n.h"
 #include "comm.h"
 #include "data.h"
+#include "focus.h"
 #include "ui.h"
 #include "workout.h"
 
@@ -75,8 +76,6 @@ typedef enum { PR_START, PR_GROUP, PR_ENTRY } PrevRowType;
 static struct { uint8_t type, idx; } s_prev_rows[PREV_MAX_ROWS];
 static uint8_t s_prev_n;
 
-#define PREV_ROW_H   56
-#define PREV_LABEL_H 26
 #define PREV_INDENT  14
 
 static void prev_add(uint8_t type, uint8_t idx) {
@@ -105,14 +104,21 @@ static uint16_t prev_rows(MenuLayer *m, uint16_t section, void *ctx) {
 }
 
 static int16_t prev_row_h(MenuLayer *m, MenuIndex *idx, void *ctx) {
-  return s_prev_rows[idx->row].type == PR_GROUP ? PREV_LABEL_H : PREV_ROW_H;
+  if (s_prev_rows[idx->row].type == PR_GROUP) return g_ui.level ? g_ui.small_line + 6 : 26;
+  return g_ui.level ? ui_cell_h(true) : 56;
 }
 
 static void draw_two_lines(GContext *ctx, const Layer *cell, const char *title, const char *sub, int x) {
   GRect b = layer_get_bounds(cell);
-  graphics_draw_text(ctx, title, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(x, 0, b.size.w - x - 6, 28),
+  // Normal keeps the preview's own 24/24; the larger sizes use the list fonts.
+  bool big = g_ui.level != UI_NORMAL;
+  GFont tf = big ? g_ui.cell_title : fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
+  GFont sf = big ? g_ui.cell_sub : fonts_get_system_font(FONT_KEY_GOTHIC_24);
+  int th = big ? g_ui.cell_title_line : 28, sy = big ? g_ui.cell_title_line - 2 : 25;
+  int sh = big ? g_ui.cell_sub_line + 4 : 28;
+  graphics_draw_text(ctx, title, tf, GRect(x, 0, b.size.w - x - 6, th + 4),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
-  graphics_draw_text(ctx, sub, fonts_get_system_font(FONT_KEY_GOTHIC_24), GRect(x, 25, b.size.w - x - 6, 28),
+  graphics_draw_text(ctx, sub, sf, GRect(x, sy, b.size.w - x - 6, sh),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 }
 
@@ -144,8 +150,8 @@ static void prev_draw(GContext *ctx, const Layer *cell, MenuIndex *idx, void *da
       else snprintf(s_buf, sizeof(s_buf), "%s%s", kind, rest);
       GRect b = layer_get_bounds(cell);
       if (!menu_cell_layer_is_highlighted(cell)) graphics_context_set_text_color(ctx, C_ACCENT);
-      graphics_draw_text(ctx, s_buf, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD),
-                         GRect(PREV_INDENT, 1, b.size.w - PREV_INDENT - 6, 22),
+      graphics_draw_text(ctx, s_buf, g_ui.small_bold,
+                         GRect(PREV_INDENT, 1, b.size.w - PREV_INDENT - 6, g_ui.small_line + 2),
                          GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
       draw_bracket(ctx, cell, true, false);
       break;
@@ -166,7 +172,7 @@ static void prev_draw(GContext *ctx, const Layer *cell, MenuIndex *idx, void *da
 }
 
 static int16_t prev_header_h(MenuLayer *m, uint16_t s, void *ctx) {
-  return MENU_CELL_BASIC_HEADER_HEIGHT;
+  return g_ui.header_h;
 }
 
 static void prev_header(GContext *ctx, const Layer *cell, uint16_t s, void *data) {
@@ -178,6 +184,7 @@ static void prev_select(MenuLayer *m, MenuIndex *idx, void *ctx) {
   sess_start(s_prev_routine);
   vibes_short_pulse();
   workout_open();
+  focus_remind_open();
   window_stack_remove(s_prev_win, false);
 }
 
@@ -201,6 +208,7 @@ static void prev_load(Window *w) {
 
 static void prev_unload(Window *w) {
   menu_layer_destroy(s_prev_menu);
+  s_prev_menu = NULL;
   status_bar_layer_destroy(s_prev_bar);
   window_destroy(s_prev_win);
   s_prev_win = NULL;
@@ -262,7 +270,7 @@ static uint16_t num_rows(MenuLayer *m, uint16_t section, void *ctx) {
 }
 
 static int16_t header_h(MenuLayer *m, uint16_t s, void *ctx) {
-  return MENU_CELL_BASIC_HEADER_HEIGHT;
+  return g_ui.header_h;
 }
 
 static void draw_header(GContext *ctx, const Layer *cell, uint16_t s, void *data) {
@@ -275,30 +283,34 @@ static void draw_row(GContext *ctx, const Layer *cell, MenuIndex *idx, void *dat
     case ROW_RESUME:
       snprintf(s_buf, sizeof(s_buf), L("%s - %d/%d sets", "%s - %d/%d Sätze"), g_plan.r[g_sess.routine].name,
                sess_count(SET_DONE), sess_total());
-      menu_cell_basic_draw(ctx, cell, L("Resume workout", "Training fortsetzen"), s_buf, NULL);
+      ui_draw_cell(ctx, cell, L("Resume workout", "Training fortsetzen"), s_buf);
       break;
     case ROW_TODAY:
       snprintf(s_buf, sizeof(s_buf), L("Planned - %d exercises", "Geplant - %d Übungen"), g_plan.r[r->idx].n);
-      menu_cell_basic_draw(ctx, cell, g_plan.r[r->idx].name, s_buf, NULL);
+      ui_draw_cell(ctx, cell, g_plan.r[r->idx].name, s_buf);
       break;
     case ROW_ROUTINE:
       snprintf(s_buf, sizeof(s_buf), L("%d exercises", "%d Übungen"), g_plan.r[r->idx].n);
-      menu_cell_basic_draw(ctx, cell, g_plan.r[r->idx].name, s_buf, NULL);
+      ui_draw_cell(ctx, cell, g_plan.r[r->idx].name, s_buf);
       break;
     case ROW_SYNC: {
       int pending = log_count();
       const char *status = comm_status();
       if (pending) snprintf(s_buf, sizeof(s_buf), L("%d to upload - %s", "%d zum Hochladen - %s"), pending, status);
       else snprintf(s_buf, sizeof(s_buf), "%s", status);
-      menu_cell_basic_draw(ctx, cell, comm_busy() ? L("Syncing...", "Sync läuft...") : L("Sync now", "Synchronisieren"), s_buf, NULL);
+      ui_draw_cell(ctx, cell, comm_busy() ? L("Syncing...", "Sync läuft...") : L("Sync now", "Synchronisieren"), s_buf);
       break;
     }
     case ROW_INFO:
-      if (r->idx == 1) menu_cell_basic_draw(ctx, cell, L("Rest day", "Ruhetag"), L("Pick a routine below", "Routine unten wählen"), NULL);
-      else if (r->idx == 2) menu_cell_basic_draw(ctx, cell, L("Nothing planned", "Nichts geplant"), L("Pick a routine below", "Routine unten wählen"), NULL);
-      else menu_cell_basic_draw(ctx, cell, L("No routines yet", "Noch keine Routinen"), L("Set up in the Pebble app", "In der Pebble-App einrichten"), NULL);
+      if (r->idx == 1) ui_draw_cell(ctx, cell, L("Rest day", "Ruhetag"), L("Pick a routine below", "Routine unten wählen"));
+      else if (r->idx == 2) ui_draw_cell(ctx, cell, L("Nothing planned", "Nichts geplant"), L("Pick a routine below", "Routine unten wählen"));
+      else ui_draw_cell(ctx, cell, L("No routines yet", "Noch keine Routinen"), L("Set up in the Pebble app", "In der Pebble-App einrichten"));
       break;
   }
+}
+
+static int16_t row_h(MenuLayer *m, MenuIndex *idx, void *ctx) {
+  return ui_cell_h(true);
 }
 
 static void select_row(MenuLayer *m, MenuIndex *idx, void *ctx) {
@@ -325,8 +337,28 @@ static void select_row(MenuLayer *m, MenuIndex *idx, void *ctx) {
   }
 }
 
+// Normal keeps the system's row height; the larger text sizes set their own. Set again on every
+// refresh, so a text size changed on the phone shows right away.
+static void set_callbacks(void) {
+  menu_layer_set_callbacks(s_menu, NULL, (MenuLayerCallbacks) {
+    .get_num_sections = num_sections,
+    .get_num_rows = num_rows,
+    .get_cell_height = g_ui.level ? row_h : NULL,
+    .get_header_height = header_h,
+    .draw_header = draw_header,
+    .draw_row = draw_row,
+    .select_click = select_row,
+  });
+}
+
 void home_refresh(void) {
   if (!s_menu) return;
+  ui_style_list(s_win, s_status_bar, s_menu);
+  if (s_prev_menu) {
+    ui_style_list(s_prev_win, s_prev_bar, s_prev_menu);
+    layer_mark_dirty(menu_layer_get_layer(s_prev_menu));
+  }
+  set_callbacks();
   rebuild();
   menu_layer_reload_data(s_menu);
 }
@@ -340,14 +372,7 @@ static void win_load(Window *w) {
   GRect menu_frame;
   s_status_bar = ui_status_bar(root, &menu_frame);
   s_menu = menu_layer_create(menu_frame);
-  menu_layer_set_callbacks(s_menu, NULL, (MenuLayerCallbacks) {
-    .get_num_sections = num_sections,
-    .get_num_rows = num_rows,
-    .get_header_height = header_h,
-    .draw_header = draw_header,
-    .draw_row = draw_row,
-    .select_click = select_row,
-  });
+  set_callbacks();
   ui_style_menu(s_menu);
   menu_layer_set_click_config_onto_window(s_menu, w);
   layer_add_child(root, menu_layer_get_layer(s_menu));

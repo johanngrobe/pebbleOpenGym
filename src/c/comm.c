@@ -1,6 +1,7 @@
 #include "comm.h"
 #include "data.h"
 #include "i18n.h"
+#include "ui.h"
 
 #define TIMEOUT_MS 45000
 #define RETRY_MS   600
@@ -141,6 +142,15 @@ static void on_plan_end(void) {
   }
 }
 
+// The colours, when the message carries them. True when they changed.
+static bool apply_colors(DictionaryIterator *it) {
+  Tuple *theme = dict_find(it, MESSAGE_KEY_Theme);
+  Tuple *accent = dict_find(it, MESSAGE_KEY_Accent);
+  Tuple *on = dict_find(it, MESSAGE_KEY_OnAccent);
+  if (!theme || !accent || !on) return false;
+  return ui_colors_set(theme->value->uint8, accent->value->uint8, on->value->uint8);
+}
+
 static void inbox_received(DictionaryIterator *it, void *ctx) {
   Tuple *cmd = dict_find(it, MESSAGE_KEY_Cmd);
   if (!cmd) return;
@@ -153,11 +163,22 @@ static void inbox_received(DictionaryIterator *it, void *ctx) {
     case CMD_HELLO: {
       Tuple *vibe = dict_find(it, MESSAGE_KEY_Vibe);
       if (vibe) vibe_set(vibe->value->uint8);
+      Tuple *size = dict_find(it, MESSAGE_KEY_Size);
+      if (size) ui_text_size_set(size->value->uint8);
+      Tuple *focus = dict_find(it, MESSAGE_KEY_Focus);
+      if (focus) focus_remind_set(focus->value->uint8 != 0);
+      Tuple *heart = dict_find(it, MESSAGE_KEY_Heart);
+      if (heart) heart_set(heart->value->uint8);
+      if (apply_colors(it)) changed();
       s_js_ready = true;
       s_pending = false;
       comm_sync();  // every time the phone side starts: upload what is waiting, refresh routines
       break;
     }
+
+    case CMD_LOOK:
+      if (apply_colors(it)) changed();
+      break;
 
     case CMD_LOG_ACK:
       if (seq) log_remove((uint32_t)seq->value->int32);
