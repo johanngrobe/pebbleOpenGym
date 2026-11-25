@@ -106,12 +106,24 @@ static void default_focus(void) {
   }
 }
 
-// Brings the state in line with the session after anything changed it.
+// The time to the millisecond, for the timers. time_ms() alone can step back: its milliseconds
+// need not roll over with its seconds (on the watch they don't quite), so a reading just after
+// the rollover can come out up to a second early, and a rest's left went up for a moment. So
+// the reading is kept within the second time() is in, and never earlier than the last one; it
+// stalls for that fraction instead. A jump back of more than a few seconds is the clock being
+// set, and is taken as it is.
 static int64_t now_ms(void) {
+  static int64_t s_last;
   time_t secs;
   uint16_t ms;
   time_ms(&secs, &ms);
-  return (int64_t)secs * 1000 + ms;
+  int64_t t = (int64_t)secs * 1000 + (ms < 1000 ? ms : 999);
+  int64_t lo = (int64_t)time(NULL) * 1000;
+  if (t < lo) t = lo;
+  else if (t > lo + 999) t = lo + 999;
+  if (t < s_last && s_last - t < 3000) t = s_last;
+  s_last = t;
+  return t;
 }
 
 // The rest's end and the hold's start to the millisecond, like Timer+ does it, so the first
@@ -152,6 +164,7 @@ static int hold_gone_ms(void) {
 }
 static int hold_gone_s(void) { return hold_gone_ms() / 1000; }
 
+// Brings the state in line with the session after anything changed it.
 static void settle(void) {
   time_t now = time(NULL);
   // A timed hold keeps running while the app is closed: its start is in the session.
