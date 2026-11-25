@@ -1,0 +1,2 @@
+- This App is for the Pebble Time 2
+- This App should work with selfhosted instances of openGym

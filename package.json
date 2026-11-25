@@ -1,0 +1,32 @@
+{
+  "name": "pebble-opengym",
+  "author": "Johann Grobe",
+  "version": "1.0.0",
+  "keywords": ["pebble-app"],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "openGym",
+    "uuid": "d186b41f-473c-4ab2-8448-81dc21d1f03b",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": ["emery"],
+    "capabilities": ["configurable", "health"],
+    "usesPermissions": ["Internet", "LocalNetwork"],
+    "watchapp": {
+      "watchface": false
+    },
+    "messageKeys": [
+      "Cmd",
+      "Seq",
+      "Data",
+      "Total",
+      "Count",
+      "Text",
+      "Vibe"
+    ],
+    "resources": {
+      "media": []
+    }
+  }
+}
