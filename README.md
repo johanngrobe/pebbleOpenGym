@@ -112,4 +112,8 @@ src/pkjs/         phone side: openGym API, data formats, settings page, exercise
 src/pebbleopengym development tools (names generator, mock server)
 ```
 
-Exercise names come from the openGym exercise catalogue (AGPL-3.0).
+## License
+
+GNU Affero General Public License v3.0 or later, see [LICENSE](LICENSE). The exercise names in
+`src/pkjs/exercise_names.js` come from the [openGym](https://github.com/DuarteSantos8/openGym)
+exercise catalogue, which is AGPL-3.0 as well.

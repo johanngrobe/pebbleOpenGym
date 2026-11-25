@@ -3,6 +3,8 @@ name = "pebbleopengym"
 version = "0.1.0"
 description = "Development tools for openGym on Pebble Time 2 (exercise names, mock API)"
 readme = "README.md"
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
 authors = [
     { name = "Johann Grobe", email = "j.grobe@namowo.de" }
 ]

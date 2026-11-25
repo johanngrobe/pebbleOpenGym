@@ -2,6 +2,7 @@
   "name": "pebble-opengym",
   "author": "Johann Grobe",
   "version": "1.0.0",
+  "license": "AGPL-3.0-or-later",
   "keywords": ["pebble-app"],
   "private": true,
   "dependencies": {},
