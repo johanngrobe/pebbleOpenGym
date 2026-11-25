@@ -51,6 +51,11 @@ var DE = {
   'Every 30 seconds': 'Alle 30 Sekunden',
   'Shown in the top right of the workout. How often the sensor measures during a workout: more often uses more battery. Off leaves the sensor alone.':
     'Oben rechts im Training. Wie oft der Sensor während des Trainings misst: öfter braucht mehr Akku. Aus lässt den Sensor in Ruhe.',
+  'Workout progress': 'Trainingsfortschritt',
+  'As a symbol': 'Als Symbol',
+  'In numbers': 'In Zahlen',
+  'Shown in the top right of the workout: the sets done out of all, as a little pie or as numbers (12/30).':
+    'Oben rechts im Training: die erledigten Sätze von allen, als kleiner Kreis oder in Zahlen (12/30).',
   'Text size on the watch': 'Textgröße auf der Uhr',
   'Like the watch': 'Wie auf der Uhr',
   'Large': 'Groß',

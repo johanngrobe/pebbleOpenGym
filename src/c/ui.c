@@ -71,12 +71,10 @@ static void pick_fonts(void) {
       u->name = font(FONT_KEY_GOTHIC_24_BOLD); u->name_line = 27;
       u->small = font(FONT_KEY_GOTHIC_18); u->small_bold = font(FONT_KEY_GOTHIC_18_BOLD); u->small_line = 22;
       u->hint = font(FONT_KEY_GOTHIC_18);
-      u->big[0] = font(FONT_KEY_ROBOTO_BOLD_SUBSET_49); u->big_h[0] = 49; u->n_big = 1;
       u->value[0] = font(FONT_KEY_LECO_38_BOLD_NUMBERS); u->value_h[0] = 38;
       u->value[1] = font(FONT_KEY_LECO_32_BOLD_NUMBERS); u->value_h[1] = 32;
       u->value[2] = font(FONT_KEY_LECO_26_BOLD_NUMBERS_AM_PM); u->value_h[2] = 26;
       u->n_value = 3;
-      u->footer = true;
       u->cell_title = font(FONT_KEY_GOTHIC_24_BOLD); u->cell_title_line = 28;
       u->cell_sub = font(FONT_KEY_GOTHIC_18); u->cell_sub_line = 22;
       u->header = font(FONT_KEY_GOTHIC_14_BOLD); u->header_h = MENU_CELL_BASIC_HEADER_HEIGHT;
@@ -87,7 +85,6 @@ static void pick_fonts(void) {
       u->name = font(FONT_KEY_GOTHIC_28_BOLD); u->name_line = 30;
       u->small = font(FONT_KEY_GOTHIC_24); u->small_bold = font(FONT_KEY_GOTHIC_24_BOLD); u->small_line = 27;
       u->hint = font(FONT_KEY_GOTHIC_24_BOLD);
-      u->big[0] = font(FONT_KEY_ROBOTO_BOLD_SUBSET_49); u->big_h[0] = 49; u->n_big = 1;
       u->value[0] = font(FONT_KEY_LECO_42_NUMBERS); u->value_h[0] = 42;
       u->value[1] = font(FONT_KEY_LECO_38_BOLD_NUMBERS); u->value_h[1] = 38;
       u->value[2] = font(FONT_KEY_LECO_32_BOLD_NUMBERS); u->value_h[2] = 32;
@@ -103,7 +100,6 @@ static void pick_fonts(void) {
       u->name = font(FONT_KEY_GOTHIC_28_BOLD); u->name_line = 30;
       u->small = font(FONT_KEY_GOTHIC_28); u->small_bold = font(FONT_KEY_GOTHIC_28_BOLD); u->small_line = 31;
       u->hint = font(FONT_KEY_GOTHIC_24_BOLD);
-      u->big[0] = font(FONT_KEY_ROBOTO_BOLD_SUBSET_49); u->big_h[0] = 49; u->n_big = 1;
       // The biggest digits there are (LECO 60 has no glyphs on Emery).
       u->value[0] = font(FONT_KEY_LECO_42_NUMBERS); u->value_h[0] = 42;
       u->value[1] = font(FONT_KEY_LECO_38_BOLD_NUMBERS); u->value_h[1] = 38;
@@ -114,6 +110,10 @@ static void pick_fonts(void) {
       u->header = font(FONT_KEY_GOTHIC_24_BOLD); u->header_h = 28;
       break;
   }
+  // The timers use the digits of the weight and reps boxes, the biggest that fit.
+  memcpy(u->big, u->value, sizeof(u->big));
+  memcpy(u->big_h, u->value_h, sizeof(u->big_h));
+  u->n_big = u->n_value;
 }
 
 void ui_init(void) {

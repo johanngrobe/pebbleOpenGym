@@ -1,7 +1,7 @@
 {
   "name": "pebble-opengym",
   "author": "Johann Grobe",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "license": "AGPL-3.0-or-later",
   "keywords": ["pebble-app"],
   "private": true,
@@ -30,7 +30,8 @@
       "Accent",
       "OnAccent",
       "Focus",
-      "Heart"
+      "Heart",
+      "Progress"
     ],
     "resources": {
       "media": []

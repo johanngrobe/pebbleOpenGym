@@ -169,6 +169,8 @@ static void inbox_received(DictionaryIterator *it, void *ctx) {
       if (focus) focus_remind_set(focus->value->uint8 != 0);
       Tuple *heart = dict_find(it, MESSAGE_KEY_Heart);
       if (heart) heart_set(heart->value->uint8);
+      Tuple *progress = dict_find(it, MESSAGE_KEY_Progress);
+      if (progress) progress_style_set(progress->value->uint8);
       if (apply_colors(it)) changed();
       s_js_ready = true;
       s_pending = false;

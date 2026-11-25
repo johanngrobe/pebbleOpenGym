@@ -75,6 +75,15 @@ function page(settings, lang) {
       }).join('') +
     '</select>' +
     '<p class="small">' + t('Shown in the top right of the workout. How often the sensor measures during a workout: more often uses more battery. Off leaves the sensor alone.') + '</p>' +
+    '<label for="progress">' + t('Workout progress') + '</label>' +
+    '<select id="progress">' +
+    [['pie', 'As a symbol'], ['numbers', 'In numbers']]
+      .map(function (o) {
+        var sel = (s.progress || 'pie') === o[0] ? ' selected' : '';
+        return '<option value="' + o[0] + '"' + sel + '>' + t(o[1]) + '</option>';
+      }).join('') +
+    '</select>' +
+    '<p class="small">' + t('Shown in the top right of the workout: the sets done out of all, as a little pie or as numbers (12/30).') + '</p>' +
     '<label for="size">' + t('Text size on the watch') + '</label>' +
     '<select id="size">' +
     [['auto', 'Like the watch'], ['normal', 'Normal'], ['large', 'Large'], ['xl', 'Extra large']]
@@ -107,7 +116,7 @@ function page(settings, lang) {
     'function q(n){var m=(location.search+"&"+location.hash).match(new RegExp("[?&#]"+n+"=([^&]*)"));return m?decodeURIComponent(m[1]):null}' +
     'document.getElementById("save").onclick=function(){' +
     'var r={url:document.getElementById("url").value.trim(),token:document.getElementById("token").value.trim(),' +
-    'lang:document.getElementById("lang").value,step:document.getElementById("step").value,vibe:document.getElementById("vibe").value,focus:document.getElementById("focus").value,heart:document.getElementById("heart").value,size:document.getElementById("size").value,theme:document.getElementById("theme").value,accent:document.getElementById("accent").value};' +
+    'lang:document.getElementById("lang").value,step:document.getElementById("step").value,vibe:document.getElementById("vibe").value,focus:document.getElementById("focus").value,heart:document.getElementById("heart").value,progress:document.getElementById("progress").value,size:document.getElementById("size").value,theme:document.getElementById("theme").value,accent:document.getElementById("accent").value};' +
     'location.href=(q("return_to")||"pebblejs://close#")+encodeURIComponent(JSON.stringify(r));};' +
     '</script></body></html>';
   return 'data:text/html;charset=utf-8,' + encodeURIComponent(html);

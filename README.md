@@ -27,12 +27,19 @@ The app syncs every time it starts with the phone in reach, and right after a wo
 | Rest | +15 s / −15 s | skip rest | – | workout menu |
 | All sets done | – | finish and save | – | workout menu |
 
-- On the Pebble Time 2 you can also tap the weight or reps box to pick it.
+- The highlighted box is the one Up / Down change: hold Select to switch between weight and reps,
+  or on the Pebble Time 2 tap the box.
+- Symbols after the set number: a chain link for a superset or circuit (the line then stands out
+  on an accent background), a half-filled circle for a one-sided exercise (reps or hold per side).
 - A changed weight or rep count carries over to the remaining sets of that exercise.
 - The watch buzzes 10 s before a rest ends and again (with the backlight) when it is over.
 - The **workout menu** has: Resume, Exercises (jump to any exercise, or add one more set to a
   finished one), Skip this set, Add a set, Finish and save, Discard (press twice), Leave for now.
 - The running workout is saved after every set. If the app is closed it reopens where you were.
+- Finishing a saved workout plays a short celebration (any button skips it), then a summary to
+  scroll through: time, sets, weight lifted and reps, average and maximum heart rate and active
+  calories from Pebble Health (when the watch has them), the top set, and each exercise's sets
+  with its best set.
 - *Today* shows the routine planned for today in openGym (weekly plan and day overrides).
 - Weights are prefilled from the routine, otherwise from your last workout with that exercise.
 
@@ -75,10 +82,12 @@ If the server is unreachable it stays on the phone and goes with the next sync.
 - Focus: when a workout starts the watch reminds you to turn on Do Not Disturb, so notifications
   don't interrupt the workout. Pebble apps can't switch Do Not Disturb on themselves. The reminder
   closes with any button or after 20 s, and can be turned off on the settings page.
-- Heart rate: shown in the top right of the workout (just the number on large text). While the
+- Heart rate: shown in the top right of the workout, a red heart and the number. While the
   workout is on screen the watch asks the sensor for a reading as often as set on the settings
   page (every 1, 5 (default), 10 or 30 s) and lets it go back to its normal rate afterwards; a
   reading older than three intervals, and at least 30 s, is hidden. *Off* leaves the sensor alone.
+- Workout progress: next to the heart rate, the sets done or skipped out of all, as a little pie
+  (default) or in numbers ("12/30"), set on the settings page.
 - Text size is set on the settings page too: *Like the watch* (default) follows the watch's own
   text size setting and switches to the biggest layout when the watch is set to Extra large;
   *Normal*, *Large* and *Extra large* set it for this app only. The large sizes use bigger fonts

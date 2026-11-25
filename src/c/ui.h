@@ -48,7 +48,6 @@ typedef struct {
   GFont hint;                            // "+15", "-15" next to the buttons
   GFont big[UI_MAX_STEPS]; int16_t big_h[UI_MAX_STEPS]; uint8_t n_big;          // timers
   GFont value[UI_MAX_STEPS]; int16_t value_h[UI_MAX_STEPS]; uint8_t n_value;    // weight, reps
-  bool footer;                           // room for the "Hold select: ..." line at the bottom
   // Lists
   GFont cell_title, cell_sub; int16_t cell_title_line, cell_sub_line;
   GFont header; int16_t header_h;

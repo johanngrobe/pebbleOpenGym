@@ -201,6 +201,8 @@ function onLog(seq, data) {
 var VIBE = { off: 0, short: 1, normal: 2, strong: 3 };
 var SIZE = { auto: 0, normal: 1, large: 2, xl: 3 };
 var FOCUS = { off: 0, remind: 1 };
+// The workout's progress in the top bar: a little pie or numbers ("12/30").
+var PROGRESS = { pie: 0, numbers: 1 };
 // Seconds between heart rate readings during a workout; 'on' is an older setting.
 var HEART = { off: 0, '1': 1, '5': 5, '10': 10, '30': 30 };
 function heartSetting(v) {
@@ -223,6 +225,7 @@ function hello() {
     Cmd: CMD.HELLO, Vibe: v == null ? VIBE.normal : v, Size: SIZE[s.size] || SIZE.auto,
     Focus: s.focus === 'off' ? FOCUS.off : FOCUS.remind,
     Heart: HEART[heartSetting(s.heart)],
+    Progress: PROGRESS[s.progress] || PROGRESS.pie,
     Theme: c.Theme, Accent: c.Accent, OnAccent: c.OnAccent
   });
 }
@@ -270,6 +273,7 @@ Pebble.addEventListener('webviewclosed', function (e) {
     vibe: VIBE[value.vibe] != null ? value.vibe : 'normal',
     focus: FOCUS[value.focus] != null ? value.focus : 'remind',
     heart: heartSetting(value.heart),
+    progress: PROGRESS[value.progress] != null ? value.progress : 'pie',
     size: SIZE[value.size] != null ? value.size : 'auto',
     theme: look.THEME[value.theme] != null ? value.theme : '',
     accent: look.PRESETS[value.accent] ? value.accent : ''

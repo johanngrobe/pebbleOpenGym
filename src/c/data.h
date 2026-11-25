@@ -158,6 +158,11 @@ void vibe_warning(void);     // the nudge 10 s before a rest ends (none when off
 extern bool g_focus_remind;
 void focus_remind_set(bool on);
 
+// The workout's progress in the top bar (Settings on the phone): a little pie, or "12/30".
+enum { PROGRESS_PIE = 0, PROGRESS_NUMBERS = 1 };
+extern uint8_t g_progress_style;
+void progress_style_set(uint8_t v);
+
 // Heart rate in the workout's top bar (Settings on the phone): the seconds between readings asked
 // of the sensor during a workout, 0 for off, which leaves the sensor alone.
 enum { HEART_DEFAULT = 5, HEART_MAX = 60 };

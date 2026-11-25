@@ -11,6 +11,7 @@
 // 7, 8: the text size and the colours, kept by ui.c
 #define K_FOCUS       9
 #define K_HEART       10
+#define K_PROGRESS    11
 #define K_PLAN_BASE   100
 #define K_LOG_BASE    200
 #define K_ACTIVE_BASE 300
@@ -27,6 +28,7 @@ Plan g_plan;
 Session g_sess;
 uint8_t g_vibe = VIBE_NORMAL;
 bool g_focus_remind = true;
+uint8_t g_progress_style = PROGRESS_PIE;
 uint8_t g_heart_period = HEART_DEFAULT;
 
 static uint8_t s_log[LOG_MAX];
@@ -590,8 +592,8 @@ void fmt_weight(char *buf, size_t size, uint16_t w20) {
 
 void fmt_duration(char *buf, size_t size, int secs) {
   if (secs < 0) secs = 0;
-  if (secs >= 3600) snprintf(buf, size, "%d:%02d:%02d", secs / 3600, (secs / 60) % 60, secs % 60);
-  else snprintf(buf, size, "%d:%02d", secs / 60, secs % 60);
+  // Hours and minutes ("0:45", "1:23"); the seconds are not needed for a workout.
+  snprintf(buf, size, "%d:%02d", secs / 3600, (secs / 60) % 60);
 }
 
 void vibe_set(uint8_t v) {
@@ -604,6 +606,13 @@ void focus_remind_set(bool on) {
   if (on == g_focus_remind && persist_exists(K_FOCUS)) return;
   g_focus_remind = on;
   persist_write_bool(K_FOCUS, on);
+}
+
+void progress_style_set(uint8_t v) {
+  if (v > PROGRESS_NUMBERS) return;
+  if (v == g_progress_style && persist_exists(K_PROGRESS)) return;
+  g_progress_style = v;
+  persist_write_int(K_PROGRESS, v);
 }
 
 void heart_set(uint8_t secs) {
@@ -638,6 +647,7 @@ void data_init(void) {
   if (persist_exists(K_VIBE)) g_vibe = persist_read_int(K_VIBE);
   if (persist_exists(K_FOCUS)) g_focus_remind = persist_read_bool(K_FOCUS);
   if (persist_exists(K_HEART)) heart_set(persist_read_int(K_HEART));
+  if (persist_exists(K_PROGRESS)) progress_style_set(persist_read_int(K_PROGRESS));
   memset(&g_plan, 0, sizeof(g_plan));
   plan_load();
   s_log_len = blob_read(K_LOG_LEN, K_LOG_BASE, s_log, sizeof(s_log));
